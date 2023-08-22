@@ -1,0 +1,271 @@
+<html>
+    <head>
+        <title>CS Capstone Project: Spinner Game</title>
+        <script src='scripts/Winwheel.js'></script>
+        <script src='scripts/SpinnerFunctions.js'></script>
+        <script src='scripts/OverlayFunctions.js'></script>
+        <script src='scripts/Objects.js'></script>
+        <script src="gsap-public/minified/gsap.min.js"></script>
+
+        <link rel="stylesheet" href="styles/main.css">
+        <link rel="stylesheet" href="styles/overlay.css">
+        <link rel="stylesheet" href="styles/win_overlay.css">
+    </head>
+    <body>
+        <div class="flex-container" id="fullpage">
+            <div id="instructions">
+                <!-- Game instructions displayed on screen, numbers and such are updated based on settings set before the game (in-app settings are not currently implemented) -->
+                <header>Instructions</header>
+
+                <p>On the bottom of the screen it says which player's turn it is. On your turn, you will be moving in one direction to try and get to your goal, 
+                while your opponent will be moving the player mark in the other direction to try and get it to his/her goal.</p>
+                <ol> <b>To setup the game</b>
+                    <li>One player should choose to be Player 1, and the other will be Player 2. This can be determined randomly if you so choose.</li>
+                    <li>Place the mover at <b id="instr_start_pos">X</b> on the number line.</li>
+                    <li>Place coins at <b id="instr_coin_setup">X X X X X X</b> on the number line.</li>
+                </ol>
+                <ol> <b>To play the game</b>
+                    <li>Click on the spinner to spin it</li>
+                    <li>Whatever number you get, move the player marker that many spaces</li>
+                    <li>Buttons will appear on the screen, click on the one that has the same number as the space you landed on</li>
+                    <li>If you clicked the correct button, you get to move <b id="instr_reward_val">1</b> extra spaces towards your goal!</li>
+                    <li>If you pass over one of your coins, collect it. On future turns, you get to move <b id="instr_coin_val">X</b> extra spaces towards your goal when selecting correct answers (the total bonus you get will appear on the right side of the screen).</li>
+                    <li>Player 1's goal is to get to <b id="player1_goal">X</b>.</li>
+                    <li>Player 2's goal is to get to <b id="player2_goal">X</b>.</li>
+                    <li>If you get to your goal before your opponent gets to theirs, you win!</li>
+                </ol>
+            </div>
+            <div class="flex-container" id="centerpage">
+                <div>
+                    <canvas id='canvas' background-color='#eae56f'>
+                        Canvas not supported, use another browser.
+                    </canvas> 
+
+                    <script>
+                        var current_player = 0;
+
+                        let tcanvas = document.getElementById('canvas');
+                        let tx = tcanvas.getContext('2d');
+                        
+                        var w = document.body.clientHeight;
+                        canvas.width = w;
+                        canvas.height = w;
+
+                        var spinner_irad = w/2 * 0.05;
+                        var spinner_orad = w/2 * 0.95;
+
+                        var clickable = true;
+
+                        //the wheel, created as a Winwheel object from the Winwheel.js script, found online for free use
+                        let spinner = new Winwheel({
+                            'innerRadius' : spinner_irad,
+                            'outerRadius' : spinner_orad,
+                            'numSegments' : 6,
+                            'textAlignment' : 'center',
+                            'textOrientation' : 'curved',
+                            'rotationAngle' : 0,
+                            'textFontSize' : 50,
+                            'segments'    :
+                            [
+                                {'fillStyle' : '#F5ED41', 'text' : '+1'},
+                                {'fillStyle' : '#13F51B', 'text' : '+2'},
+                                {'fillStyle' : '#23CBDC', 'text' : '+3'},
+                                {'fillStyle' : '#766FEF', 'text' : '+4'},
+                                {'fillStyle' : '#9D1FA0', 'text' : '+5'},
+                                {'fillStyle' : '#DC5D5C', 'text' : '+6'}
+                            ],
+                            'animation' :
+                            {
+                                'type' : 'spinToStop',
+                                'duration' : 2,
+                                'spins' : 3,
+                                'easing' : 'power4.out',
+                                'callbackAfter' : 'afterDraw(clickable)',
+                                'callbackFinished' : 'postSpin()'
+                            }
+                        });
+
+                        var spinnerVals = new Array(); //array of values to use for randomizeSpinnerVals()
+
+                        //initial drawing of the wheel
+                        if (tx){
+                            createSpinnerVals(spinnerVals);
+                            randomizeSpinnerVals(current_player, spinnerVals);
+                            spinner.draw();
+                            drawPointer(clickable);
+                        }
+
+                        //what happens when you click on the wheel's canvas
+                        canvas.onclick = function(e){
+                            if(clickable == true){
+                                document.getElementById("bonus_div").style.display = "none";
+                                spinner.startAnimation();
+                                clickable = false;
+                            }
+                        }
+                    </script>   
+                </div>
+                <div id="currentplayer">
+                    Player 1
+                </div>
+            </div>
+            <div id = "right">
+                <!-- The CSS for this div could be greatly improved, it is currently only a circle when in full screen and gets distorted otherwise-->
+                <div id = "bonus_div">
+                    That's correct! Move this many extra spaces:
+                    <div id = "bonus">+0</div>
+                </div>
+            </div>
+        </div>
+        <div id="overlay">
+            <div id="formula">
+                Where did you end up?
+            </div>
+            <div id="buttons1">
+                <button class="button" id="B1" onclick="buttonClick('B1')">1</button>
+                <button class="button" id="B2" onclick="buttonClick('B2')">2</button>
+                <button class="button" id="B3" onclick="buttonClick('B3')">3</button>
+            </div>
+            <div id="filler">
+                Pick correctly to receive a bonus!
+            </div>
+            <div id="hint">
+                Hint: 
+            </div>
+        </div>
+        <div id="win_overlay" onclick="gameReset()">
+            <div id="winner_text">
+                Player X Wins!!
+            </div>
+            <div>
+                Click anywhere to reset and play again
+            </div>
+        </div>
+    </body>
+    <!-- Setup Script -->
+    <script>
+        var playerCount = 2; //pretending for 2 or 4, the 3rd and 4th players will be added more properly when a four-player gamemode is added
+        var difficulty = 1; //0 = numbers 1-5, 1 = #1-10, 2 = #1-20, 3 = #1-50 --------- changing the difficulty currently changes just the range of numbers used for the game
+        var negatives = true;
+        //----------------------------------------------------------------------------------------------
+        //eventually, there would be a settings menu where you could select a difficult, something like:
+        // Easy - simple addition with positive numbers
+        // Medium - bigger number addition with both positives and negatives and infrequent multiplication
+        // Hard - decimal multiplication, no addition
+        // --or--
+        //instead of named difficulties, it would be grade levels, and the math involved would reflect standard education levels
+        //difficulties are more generalizable, grade levels are easier to choose between, ideally however, each player would get their own difficulty instead of a global one,
+        //allowing for players of varying age groups and skill levels to play together.
+
+        //settings would also contain a place to input player names, which are fully implemented in this code except for the user input part, simply edit the Player objects in the players[] array (like below)
+
+        //I would also like there to be an opening title menu where settings can be accessed and there is a button to click "Play" that takes you to another menu that allows users to select a gamemode
+        //----------------------------------------------------------------------------------------------
+
+        //setup the instructions to have values based on game difficulty
+        document.getElementById("instr_reward_val").innerHTML = difficulty;
+        document.getElementById("instr_coin_val").innerHTML = difficulty * 2;
+
+        //setup players
+        var players = [new Player(), new Player()]; //there has be at least two players, so they are just added immediately
+        var current_player = 0;
+        var globalGamePosition = 20; //irrelevant number that gets set by setupGame()
+        var coins = [];
+
+        setupGame(difficulty, negatives);
+
+        //function to both setup and reset the game to its initial values, more functionality will need to be added for more reseting features, when added
+        function setupGame(difficulty, negatives){
+            players[0].name = "Player 1";
+            players[1].name = "Player 2";
+
+            //add more players if gamemode calls for it, currently unused
+            if (playerCount == 4){ //this can be expanded to be more versatile with a shutes-and-ladders type gamemode (since there is technically no reason to not have more players in that type of game)
+                players.push(new Player(), new Player());
+                players[2].name = "Player 3";
+                players[3].name = "Player 4";
+            }
+
+            //set players starting bonuses for correct answers
+            for(let i = 0; i < players.length; i++){
+                if (i % 2 == 0) {
+                    players[i].bonus = difficulty;
+                } else {
+                    if (negatives == true) {
+                        players[i].bonus = -difficulty;
+                    } else {
+                        players[i].bonus = difficulty;
+                    }
+                }
+            }
+
+            //set the first player
+            document.getElementById("currentplayer").innerText = players[current_player].name + "'s turn";
+
+            //setup the coin objects
+            let num_coins = 6; //this value can be changed to account for any even number of coins
+            for (let i = 0; i < num_coins; i++){
+                coins.push(new Coin());
+            }
+
+            //set the starting position of the game
+            let player1_goal = document.getElementById("player1_goal");
+            let player2_goal = document.getElementById("player2_goal");
+
+            //these are predetermined values used primarily to test that changing the difficulty number actually worked, 
+            //definitely should be modified to more accurately reflect the intended purpose of the difficulty
+            if (difficulty == 0){ 
+                globalGamePosition = 20;
+            } else if (difficulty == 1) {
+                globalGamePosition = 40;
+            } else if (difficulty == 2) {
+                globalGamePosition = 80;
+            } else if (difficulty == 3) {
+                globalGamePosition = 200;
+            }
+            player1_goal.innerHTML = 0;
+            player2_goal.innerHTML = globalGamePosition * 2;
+
+            //setup the coins and their starting positions -- accounts for negatives being used or not
+            let coin_pos_counter = globalGamePosition / 4;
+            for (let i = 0; i < coins.length; i+=2){
+                coins[i].value = difficulty * 2;
+                coins[i].position = coin_pos_counter + (i/2)*coin_pos_counter;
+                coins[i+1].value = difficulty * 2;
+                if (negatives == true){
+                    coins[i+1].position = -(coin_pos_counter + (i/2)*coin_pos_counter);
+                } else {
+                    coins[i+1].position = globalGamePosition + coin_pos_counter + (i/2)*coin_pos_counter;
+                }
+            }
+
+            //set the coin positions in the instructions
+            let instr_coin_setup = [];
+            for (let coin of coins){
+                instr_coin_setup.push(coin.position);
+            }
+            let instr_coin_setup_text = "";
+            for (let i of instr_coin_setup.sort(function(a, b) {return a - b;})){
+                instr_coin_setup_text += i + ", ";
+            }
+            document.getElementById("instr_coin_setup").innerHTML = instr_coin_setup_text.slice(0, -2);
+
+            //modify positions if negatives are being used
+            if (negatives == true) {
+                player1_goal.innerHTML -= globalGamePosition;
+                player2_goal.innerHTML -= globalGamePosition;
+                globalGamePosition = 0;
+            } 
+
+            //set the starting position in the instructions
+            document.getElementById("instr_start_pos").innerHTML = globalGamePosition;
+        }
+
+        //globalGamePosition = 40; //game starting position modifier for testing
+    </script>
+</html>
+
+<!-- TO-DO list -->
+<!-- add multiple-device support, allowing users to play in two or more different locations -->
+<!-- add player age to weight the game in the younger player's favor-->
+<!-- add settings, including difficulty select and player names and ages -->

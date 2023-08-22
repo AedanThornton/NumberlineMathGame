@@ -1,0 +1,74 @@
+#overlay {
+    position: fixed; /* Sit on top of the page content */
+    display: none; /* Hidden by default */
+    width: 100%; /* Full width (cover the whole page) */
+    height: 100%; /* Full height (cover the whole page) */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+    cursor: pointer; /* Add a pointer on hover */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#formula{
+    position: absolute;
+    top: 22%;
+    height: 10%;
+    width: 32%;
+    padding-top: 0.5%;
+    text-align: center;
+    font-size: 300%;
+    color: white;
+    text-decoration-line: underline;
+}
+
+#filler{
+    position: absolute;
+    bottom: 20%;
+    height: 8%;
+    width: 38%;
+    padding-top: 0.5%;
+    text-align: center;
+    font-size: 250%;
+    background-color: gold;
+}
+
+#hint {
+    position: absolute;
+    bottom: 10%;
+    height: 5%;
+    width: 20%;
+    padding-bottom: 0.5%;
+    text-align: center;
+    font-size: 200%;
+    color: white;
+}
+
+#buttons1{
+    position: absolute;
+    height: 33%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#buttons1 > .button {
+    position: relative;
+    width: 30%;
+    height: 100%;
+    margin: 10px 10px;
+    border: none;
+    transition-duration: 0.3s;
+    font-size: 300%;
+}
+
+#buttons1 > .button:hover{
+    background-color: rgb(182, 182, 182);
+}

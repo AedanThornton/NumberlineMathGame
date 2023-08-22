@@ -1,0 +1,29 @@
+#win_overlay {
+    position: fixed; /* Sit on top of the page content */
+    display: none; /* Hidden by default */
+    width: 100%; /* Full width (cover the whole page) */
+    height: 100%; /* Full height (cover the whole page) */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.686); /* Black background with opacity */
+    z-index: 4; /* Specify a stack order in case you're using a different order for other elements */
+    cursor: pointer; /* Add a pointer on hover */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#win_overlay > div {
+    font-size: 150%;
+    background-color: white;
+    width: 45%;
+    height: 5%;
+    text-align: center;
+}
+
+#win_overlay > #winner_text {
+    font-size: 600%;
+    height: 15%;
+}

@@ -1,0 +1,109 @@
+body{
+    margin: 0px 0px;
+    padding: 0px 0px;
+    overflow: hidden;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+#centerpage{
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(190, 190, 190);
+    align-items: center;
+    height: 100%;
+    min-width: 400px;
+}
+
+#centerpage > div {
+    background-color: rgb(232, 232, 232);
+    height: 100%;
+    width: 100%;
+    text-align: center;
+}
+
+#centerpage > #currentplayer {
+    font-size: 40px;
+    height: 10%;
+    font-weight: bold;
+}
+
+#canvas {
+    width: 100%;
+}
+
+#fullpage{
+    display: flex;
+    flex-direction: row;
+    background-color:rgb(232, 232, 232);
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+
+#fullpage > div {
+    background-color: white;
+    font-size: 40px;
+    height: 100%;
+    width: 40%;
+}
+
+#fullpage > #instructions {
+    width: 29%;
+    font-size: 100%;
+    height: 98%;
+    text-align: center;
+    overflow-y: scroll;
+}
+
+#fullpage > #instructions::-webkit-scrollbar{
+    display: none;
+}
+
+#fullpage > #instructions > ol {
+    text-align: left;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+#fullpage > #instructions > p {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#fullpage > #instructions > header {
+    padding-top: 10px;
+}
+
+#fullpage > #right {
+    width: 29%;
+    height: 98%;
+    text-align: center;
+}
+
+#bonus_div {
+    display: none;
+}
+
+#bonus {
+    height: 205px;
+    width: 250px;
+    padding-top: 45px;
+    position: absolute;
+    top: 17%;
+    left: 77%;
+    border-radius: 50%;
+    background-color: gold;
+    text-align: center;
+    font-size: 300%;
+}
+
+#bonus > span {
+    position: relative;
+    top:50%;
+    padding-top: 50%;
+}
+
+#bonus:hover {
+    background-color: goldenrod;
+}
